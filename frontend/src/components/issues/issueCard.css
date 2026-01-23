@@ -1,0 +1,83 @@
+.issue-card {
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 200px;
+}
+
+.issue-card-compact {
+  grid-template-columns: 220px 1fr;
+}
+
+.issue-media {
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+}
+
+.issue-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.issue-content {
+  padding: 14px 14px 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.issue-id {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.issue-title {
+  font-size: 16px;
+  font-weight: 850;
+  text-transform: capitalize;
+}
+
+.issue-desc {
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.issue-meta {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.issue-footer {
+  padding-top: 4px;
+}
+
+.issue-dept {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+@media (max-width: 860px) {
+  .issue-card,
+  .issue-card-compact {
+    grid-template-columns: 1fr;
+  }
+  .issue-media {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    height: 200px;
+  }
+}
+
