@@ -16,7 +16,7 @@ export function AdminIssuesPage() {
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState("");
   const [editingId, setEditingId] = useState("");
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState("");
+
 
   useEffect(() => {
     let alive = true;
@@ -49,7 +49,9 @@ export function AdminIssuesPage() {
     setSavingId(issueId);
     try {
       const updated = await updateIssueStatus({ issueId, status });
-      setItems((prev) => prev.map((i) => (i.id === issueId ? updated : i)));
+      setItems((prev) =>
+        prev.map((i) => (i._id === updated._id ? updated : i))
+      );
     } finally {
       setSavingId("");
     }
@@ -59,7 +61,9 @@ export function AdminIssuesPage() {
     setSavingId(issueId);
     try {
       const updated = await updateIssueUrgency({ issueId, urgency });
-      setItems((prev) => prev.map((i) => (i.id === issueId ? updated : i)));
+      setItems((prev) =>
+        prev.map((i) => (i._id === updated._id ? updated : i))
+      );
     } finally {
       setSavingId("");
     }
@@ -72,10 +76,11 @@ export function AdminIssuesPage() {
     setSavingId(issueId);
     try {
       await deleteIssue(issueId);
-      setItems((prev) => prev.filter((i) => i.id !== issueId));
+      setItems((prev) =>
+        prev.filter((i) => i._id !== issueId && i.id !== issueId)
+      );
     } finally {
       setSavingId("");
-      setShowDeleteConfirm("");
     }
   }
 
@@ -131,7 +136,7 @@ export function AdminIssuesPage() {
                 </thead>
                 <tbody>
                   {items.map((i) => (
-                    <tr key={i.id}>
+                    <tr key={i._id || i.id}>
                       <td style={{ whiteSpace: "nowrap", fontWeight: 800 }}>{i.id}</td>
                       <td>
                         {i.photoUrl && (

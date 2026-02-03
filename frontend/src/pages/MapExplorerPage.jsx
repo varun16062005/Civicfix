@@ -106,8 +106,8 @@ export function MapExplorerPage() {
           ) : (
             items.map((issue) => (
               <div
-                key={issue.id}
-                className={`issue-card-sidebar ${selectedIssue?.id === issue.id ? "issue-card-selected" : ""}`}
+                key={issue._id || issue.id}
+                className={`issue-card-sidebar ${selectedIssue?._id === issue._id ? "issue-card-selected" : ""}`}
                 onClick={() => {
                   setSelectedIssue(issue);
                   // This will trigger map centering via IssuesMap component

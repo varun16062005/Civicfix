@@ -55,7 +55,7 @@ export function ProfilePage() {
           ) : (
             <div className="grid" style={{ gap: 14 }}>
               {items.map((issue) => (
-                <IssueCard key={issue.id} issue={issue} />
+                <IssueCard key={issue._id || issue.id} issue={issue} />
               ))}
             </div>
           )}

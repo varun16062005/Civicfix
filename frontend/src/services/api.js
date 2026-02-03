@@ -1,18 +1,21 @@
 /**
- * API placeholders for CivicFix.
- * Replace these with real HTTP calls (fetch/axios) to your backend.
+ * HTTP API for CivicFix (MongoDB-backed)
  */
-import { mockIssues } from "../data/mockIssues";
 import { STATUS, departmentForCategory } from "../domain/issues";
-import { getStoredIssues, saveIssues, addIssue, updateIssue, deleteIssue as deleteStoredIssue, initializeStorage } from "./storage";
 
-// Initialize storage on first load (only in browser)
-if (typeof window !== "undefined") {
-  initializeStorage();
+async function safeJson(res) {
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
 }
 
-function sleep(ms) {
-  return new Promise((r) => setTimeout(r, ms));
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    if (!file) return resolve("");
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 
 export async function uploadIssue({
@@ -23,137 +26,83 @@ export async function uploadIssue({
   locationText,
   location,
 }) {
-  // Placeholder for:
-  // - POST /issues (multipart/form-data)
-  // - send photo + fields
-  await sleep(500);
+  const photoUrl = await fileToBase64(photoFile);
 
-  const id = `ISSUE-${Math.floor(1000 + Math.random() * 9000)}`;
-  
-  // Convert photo to base64 for storage
-  let photoUrl = "https://placehold.co/900x600/png?text=No%20Photo";
-  if (photoFile) {
-    try {
-      const reader = new FileReader();
-      photoUrl = await new Promise((resolve) => {
-        reader.onloadend = () => resolve(reader.result);
-        reader.readAsDataURL(photoFile);
-      });
-    } catch (error) {
-      console.error("Error converting photo:", error);
-      photoUrl = URL.createObjectURL(photoFile);
-    }
-  }
-
-  const issue = {
-    id,
+  const payload = {
     category,
     urgency,
     status: STATUS.PENDING,
-    locationText: locationText || (location ? `${location.lat}, ${location.lng}` : ""),
+    locationText: locationText || "",
     location,
     description,
     photoUrl,
-    createdAt: new Date().toISOString(),
     aiVerdict: "pending_ai",
     department: departmentForCategory(category),
-    reporterId: "user-1",
+    reporterId: "user-1", // demo user
   };
-  
-  // Save to storage
-  addIssue(issue);
-  return issue;
+
+  const res = await fetch("/api/issues", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  return safeJson(res);
 }
 
 export async function fetchIssues({ q, urgency, status, category } = {}) {
-  // Placeholder for:
-  // - GET /issues?q=&urgency=&status=&category=
-  await sleep(250);
-  let result = getStoredIssues();
-  
-  // Map categories to local image files for old issues without real photos
-  result = result.map(issue => {
-    // Only replace placeholder URLs, keep real photos (base64 or actual URLs)
-    if (!issue.photoUrl || issue.photoUrl.includes("placehold.co") || issue.photoUrl === "") {
-      const categoryImageMap = {
-        "Garbage": "/Garbage.jpg",
-        "Pothole": "/Pothole.jpg",
-        "Streetlight": "/Streetlight.jpg",
+  const params = new URLSearchParams();
+  if (q) params.append("q", q);
+  if (urgency) params.append("urgency", urgency);
+  if (status) params.append("status", status);
+  if (category) params.append("category", category);
+
+  const res = await fetch(`/api/issues?${params.toString()}`);
+  const issues = await safeJson(res);
+
+  return issues.map((issue) => {
+    if (!issue.photoUrl || !issue.photoUrl.startsWith("data:image")) {
+      const fallback = {
+        Garbage: "/Garbage.jpg",
+        Pothole: "/Pothole.jpg",
+        Streetlight: "/Streetlight.jpg",
         "Overflowing bin": "/Overflowing-bin.jpg",
       };
-      issue.photoUrl = categoryImageMap[issue.category] || "/default.jpg";
+      issue.photoUrl = fallback[issue.category] || "/default.jpg";
     }
     return issue;
   });
-  
-  if (q) {
-    const s = q.toLowerCase();
-    result = result.filter(
-      (i) =>
-        i.description?.toLowerCase().includes(s) ||
-        i.locationText?.toLowerCase().includes(s) ||
-        i.id?.toLowerCase().includes(s),
-    );
-  }
-  if (urgency) result = result.filter((i) => i.urgency === urgency);
-  if (status) result = result.filter((i) => i.status === status);
-  if (category) result = result.filter((i) => i.category === category);
-  return result;
 }
 
 export async function fetchMyIssues() {
-  // Placeholder for:
-  // - GET /me/issues
-  await sleep(250);
-  const allIssues = getStoredIssues();
-  return allIssues.filter((i) => i.reporterId === "user-1");
+  const res = await fetch("/api/issues?reporterId=user-1");
+  return safeJson(res);
 }
 
 export async function updateIssueStatus({ issueId, status }) {
-  // Placeholder for:
-  // - PATCH /issues/:id/status
-  await sleep(350);
-  const updated = updateIssue(issueId, { status });
-  return updated;
+  const res = await fetch(`/api/issues/${issueId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status }),
+  });
+  return safeJson(res);
 }
 
 export async function updateIssueUrgency({ issueId, urgency }) {
-  // Placeholder for:
-  // - PATCH /issues/:id/urgency
-  await sleep(350);
-  const updated = updateIssue(issueId, { urgency });
-  return updated;
+  const res = await fetch(`/api/issues/${issueId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ urgency }),
+  });
+  return safeJson(res);
 }
 
 export async function deleteIssue(issueId) {
-  // Placeholder for:
-  // - DELETE /issues/:id
-  await sleep(350);
-  deleteStoredIssue(issueId);
-  return { success: true };
+  const res = await fetch(`/api/issues/${issueId}`, { method: "DELETE" });
+  return safeJson(res);
 }
 
 export async function fetchAdminStats() {
-  // Placeholder for:
-  // - GET /admin/stats
-  await sleep(250);
-  const allIssues = getStoredIssues();
-  const total = allIssues.length;
-  const resolved = allIssues.filter((i) => i.status === STATUS.RESOLVED).length;
-  const pending = allIssues.filter((i) => i.status === STATUS.PENDING).length;
-  const inProgress = allIssues.filter((i) => i.status === STATUS.IN_PROGRESS).length;
-
-  const byCategory = allIssues.reduce((acc, i) => {
-    acc[i.category] = (acc[i.category] || 0) + 1;
-    return acc;
-  }, {});
-
-  return {
-    total,
-    resolved,
-    pending,
-    inProgress,
-    byCategory: Object.entries(byCategory).map(([name, value]) => ({ name, value })),
-  };
+  const res = await fetch("/api/admin/stats");
+  return safeJson(res);
 }
-

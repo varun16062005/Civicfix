@@ -15,21 +15,13 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
 });
 
-function getMarkerColor(urgency, status) {
-  // Red = Active/High urgency or Pending/High urgency
-  if (urgency === URGENCY.HIGH || (status === STATUS.PENDING && urgency === URGENCY.HIGH)) {
-    return "#ef4444"; // Red
-  }
-  // Yellow = Pending/Medium urgency or In Progress
-  if (status === STATUS.PENDING || status === STATUS.IN_PROGRESS) {
-    return "#f59e0b"; // Yellow/Orange
-  }
-  // Green = Resolved or Low urgency
-  if (status === STATUS.RESOLVED || urgency === URGENCY.LOW) {
-    return "#10b981"; // Green
-  }
-  return "#64748b"; // Default gray
+function getMarkerColor(issue) {
+  if (issue.status === "resolved") return "green";
+  if (issue.urgency === "high") return "red";
+  if (issue.status === "pending") return "orange";
+  return "blue";
 }
+
 
 function createCustomIcon(color) {
   return L.divIcon({
@@ -108,7 +100,7 @@ export function IssuesMap({ issues = [], selectedIssue, onIssueSelect }) {
         <MapBounds issues={issuesWithLocation} selectedIssue={selectedIssue} />
         
         {issuesWithLocation.map((issue) => {
-          const color = getMarkerColor(issue.urgency, issue.status);
+          const color = getMarkerColor(issue);
           const customIcon = createCustomIcon(color);
           
           return (

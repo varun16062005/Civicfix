@@ -86,7 +86,7 @@ useEffect(() => {
           ) : (
             <div className="grid" style={{ gap: 14 }}>
               {items.map((issue) => (
-                <IssueCard key={issue.id} issue={issue} compact={view === "list"} />
+                <IssueCard key={issue._id || issue.id} issue={issue} compact={view === "list"} />
               ))}
             </div>
           )}
