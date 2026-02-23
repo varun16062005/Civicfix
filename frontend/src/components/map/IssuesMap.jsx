@@ -16,12 +16,16 @@ L.Icon.Default.mergeOptions({
 });
 
 function getMarkerColor(issue) {
-  if (issue.status === "resolved") return "green";
-  if (issue.urgency === "high") return "red";
-  if (issue.status === "pending") return "orange";
-  return "blue";
-}
+  const urgency = issue.urgency?.toLowerCase();
+  const status = issue.status?.toLowerCase();
 
+  if (status === "resolved") return "green";
+  if (urgency === "high") return "red";
+  if (urgency === "medium") return "orange";
+  if (urgency === "low") return "blue";
+
+  return "gray";
+}
 
 function createCustomIcon(color) {
   return L.divIcon({
