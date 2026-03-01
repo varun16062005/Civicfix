@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { LayoutDashboard, FileText, Link2, Settings, LogOut, User } from "lucide-react";
 import { LogoMark } from "../nav/mark/LogoMark";
+import { useAuth } from "../../context/AuthContext";
 import "./adminSidebar.css";
 
 const navItems = [
@@ -13,6 +14,12 @@ const navItems = [
 
 export function AdminSidebar() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
 
   return (
     <aside className="admin-sidebar">
@@ -50,11 +57,11 @@ export function AdminSidebar() {
             <User size={20} />
           </div>
           <div className="admin-user-info">
-            <div className="admin-user-name">Alex Rivera</div>
-            <div className="admin-user-role">Senior Coordinator</div>
+            <div className="admin-user-name">{user?.name || "Admin"}</div>
+            <div className="admin-user-role">{user?.role === "admin" ? "Administrator" : "User"}</div>
           </div>
         </div>
-        <button className="admin-logout-btn" onClick={() => navigate("/")}>
+        <button className="admin-logout-btn" onClick={handleLogout}>
           <LogOut size={18} />
         </button>
       </div>

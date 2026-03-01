@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { IssueCard } from "../components/issues/IssueCard";
 import { ButtonLink } from "../components/ui/Button";
 import { Card, CardBody, CardHeader } from "../components/ui/Card";
-import { fetchMyIssues } from "../services/api";
+import { fetchMyIssues, deleteIssue } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 export function ProfilePage() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState("");
 
   useEffect(() => {
     let alive = true;
@@ -24,6 +26,21 @@ export function ProfilePage() {
       alive = false;
     };
   }, []);
+
+  const handleDelete = async (issueId) => {
+    if (!window.confirm("Are you sure you want to delete this issue? This action cannot be undone.")) {
+      return;
+    }
+    setDeletingId(issueId);
+    try {
+      await deleteIssue(issueId);
+      setItems((prev) => prev.filter((i) => i._id !== issueId && i.id !== issueId));
+    } catch (err) {
+      alert(err.message || "Failed to delete issue");
+    } finally {
+      setDeletingId("");
+    }
+  };
 
   return (
     <div className="grid" style={{ gap: 16 }}>
@@ -55,7 +72,13 @@ export function ProfilePage() {
           ) : (
             <div className="grid" style={{ gap: 14 }}>
               {items.map((issue) => (
-                <IssueCard key={issue._id || issue.id} issue={issue} />
+                <IssueCard
+                  key={issue._id || issue.id}
+                  issue={issue}
+                  canDelete={true}
+                  onDelete={handleDelete}
+                  isDeleting={deletingId === (issue._id || issue.id)}
+                />
               ))}
             </div>
           )}

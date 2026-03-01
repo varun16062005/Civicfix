@@ -39,13 +39,15 @@ export function TopNav() {
           <NavLink to="/map" className={linkClassName}>
             Explore Map
           </NavLink>
-          <NavLink to="/report" className={linkClassName}>
-            Report
-          </NavLink>
           {user && (
-            <NavLink to="/profile" className={linkClassName}>
-              Profile
-            </NavLink>
+            <>
+              <NavLink to="/report" className={linkClassName}>
+                Report
+              </NavLink>
+              <NavLink to="/profile" className={linkClassName}>
+                Profile
+              </NavLink>
+            </>
           )}
           {isAdmin() && (
             <NavLink to="/admin" className={linkClassName}>

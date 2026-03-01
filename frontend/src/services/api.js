@@ -4,7 +4,15 @@
 import { STATUS, departmentForCategory } from "../domain/issues";
 
 async function safeJson(res) {
-  if (!res.ok) throw new Error(await res.text());
+  if (!res.ok) {
+    const text = await res.text();
+    try {
+      const json = JSON.parse(text);
+      throw new Error(json.message || text);
+    } catch {
+      throw new Error(text || `Request failed with status ${res.status}`);
+    }
+  }
   return res.json();
 }
 

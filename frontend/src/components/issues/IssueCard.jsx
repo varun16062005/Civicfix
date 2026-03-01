@@ -1,10 +1,11 @@
-import { MapPin, ShieldAlert, Timer } from "lucide-react";
+import { MapPin, ShieldAlert, Timer, Trash2 } from "lucide-react";
 import { categoryLabel, statusLabel, statusTone, urgencyTone } from "../../domain/issues";
 import { Badge } from "../ui/Badge";
+import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
 import "./issueCard.css";
 
-export function IssueCard({ issue, compact = false, rightSlot }) {
+export function IssueCard({ issue, compact = false, rightSlot, onDelete, canDelete = false, isDeleting = false }) {
   return (
     <Card className={["issue-card", compact ? "issue-card-compact" : ""].join(" ")}>
       <div className="issue-media">
@@ -40,7 +41,21 @@ export function IssueCard({ issue, compact = false, rightSlot }) {
 
         <div className="row-between issue-footer">
           <div className="issue-dept">{issue.department}</div>
-          {rightSlot ? <div>{rightSlot}</div> : null}
+          <div className="row" style={{ gap: 8, alignItems: "center" }}>
+            {canDelete && onDelete && (
+              <Button
+                size="sm"
+                variant="danger"
+                disabled={isDeleting}
+                onClick={() => onDelete(issue._id || issue.id)}
+                style={{ minWidth: "auto", padding: "6px 12px" }}
+              >
+                <Trash2 size={14} />
+                {isDeleting ? "Deleting…" : "Delete"}
+              </Button>
+            )}
+            {rightSlot ? <div>{rightSlot}</div> : null}
+          </div>
         </div>
       </div>
     </Card>

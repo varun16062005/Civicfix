@@ -4,6 +4,8 @@ import { AdminLayout } from "./pages/admin/AdminLayout";
 import { AdminDashboardPage } from "./pages/admin/AdminDashboardPage";
 import { AdminIssuesPage } from "./pages/admin/AdminIssuesPage";
 import { KanbanBoardPage } from "./pages/admin/KanbanBoardPage";
+import { AdminDepartmentsPage } from "./pages/admin/AdminDepartmentsPage";
+import { AdminSettingsPage } from "./pages/admin/AdminSettingsPage";
 import { HomePage } from "./pages/HomePage";
 import { IssuesPage } from "./pages/IssuesPage";
 import { LoginPage } from "./pages/LoginPage";
@@ -19,7 +21,14 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route element={<AppLayout />}>
           <Route path="/" element={<HomePage />} />
-          <Route path="/report" element={<ReportIssuePage />} />
+          <Route
+            path="/report"
+            element={
+              <ProtectedRoute>
+                <ReportIssuePage />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/issues" element={<IssuesPage />} />
           <Route path="/map" element={<MapExplorerPage />} />
           <Route path="/profile" element={<ProfilePage />} />
@@ -35,8 +44,8 @@ export default function App() {
           <Route index element={<AdminDashboardPage />} />
           <Route path="issues" element={<AdminIssuesPage />} />
           <Route path="kanban" element={<KanbanBoardPage />} />
-          <Route path="departments" element={<div style={{ padding: 40 }}>Department Links - Coming Soon</div>} />
-          <Route path="settings" element={<div style={{ padding: 40 }}>Settings - Coming Soon</div>} />
+          <Route path="departments" element={<AdminDepartmentsPage />} />
+          <Route path="settings" element={<AdminSettingsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

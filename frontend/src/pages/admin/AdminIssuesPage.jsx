@@ -79,6 +79,8 @@ export function AdminIssuesPage() {
       setItems((prev) =>
         prev.filter((i) => i._id !== issueId && i.id !== issueId)
       );
+    } catch (err) {
+      alert(err.message || "Failed to delete issue");
     } finally {
       setSavingId("");
     }
