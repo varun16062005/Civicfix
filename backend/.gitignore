@@ -1,6 +1,7 @@
 node_modules/
 uploads/
 .env
+venv/
 backend/ai/venv/
 __pycache__/
 *.pyc
