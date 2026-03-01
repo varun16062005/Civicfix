@@ -90,10 +90,47 @@ app.patch('/issues/:id', async (req, res) => {
   }
 });
 
-// Delete an issue by Mongo _id or custom `id` field
-app.delete('/issues/:id', async (req, res) => {
+// Delete an issue by Mongo _id or custom `id` field (with role-based permissions)
+app.delete('/issues/:id', jwtAuth.protect, async (req, res) => {
   try {
     const { id } = req.params;
+    const user = req.user;
+
+    // Find the issue first
+    let issue = null;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      issue = await Issue.findById(id);
+    }
+    if (!issue) {
+      issue = await Issue.findOne({ id });
+    }
+    
+    if (!issue) {
+      return res.status(404).json({ message: 'Issue not found' });
+    }
+
+    // Check permissions:
+    // - Admin can delete any issue
+    // - User can only delete their own issues
+    const isAdmin = user.role === 'admin';
+    
+    // Handle both populated and unpopulated reporterId
+    let isOwner = false;
+    if (issue.reporterId) {
+      if (typeof issue.reporterId === 'object' && issue.reporterId._id) {
+        // Populated reporterId (object with _id)
+        isOwner = issue.reporterId._id.toString() === user._id.toString();
+      } else {
+        // Unpopulated reporterId (ObjectId reference)
+        isOwner = issue.reporterId.toString() === user._id.toString();
+      }
+    }
+
+    if (!isAdmin && !isOwner) {
+      return res.status(403).json({ message: 'Forbidden: You can only delete your own issues' });
+    }
+
+    // Delete the issue
     let result = null;
     if (mongoose.Types.ObjectId.isValid(id)) {
       result = await Issue.findByIdAndDelete(id);
@@ -101,7 +138,11 @@ app.delete('/issues/:id', async (req, res) => {
     if (!result) {
       result = await Issue.findOneAndDelete({ id });
     }
-    if (!result) return res.status(404).json({ message: 'Issue not found' });
+    
+    if (!result) {
+      return res.status(404).json({ message: 'Issue not found' });
+    }
+
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ message: err.message });

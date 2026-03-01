@@ -21,16 +21,17 @@ Runs on: http://localhost:3000
 (first time)
 cd backend/ai
 python -m venv venv
-venv\Scripts\activate 
-pip install torch transformers fastapi uvicorn huggingface_hub pillow
-uvicorn main:app --port 8000
+venv\Scripts\activate           # Windows
+source venv/bin/activate        # Linux/Mac
+pip install -r requirements.txt # Install all deps listed in the file
+python start.py                 # Just run this!
 
 Runs on: http://127.0.0.1:8000
 
 (later uses)
 cd backend/ai
 venv\Scripts\activate
-uvicorn main:app --port 8000
+python start.py
 
 Check your Python environment
 In VS Code, check which interpreter is active:
